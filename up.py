@@ -27,123 +27,12 @@ LOGIN_URL = "https://discord.com/app"
 current_dir = Path(__file__).resolve().parent
 
 # DISCORD_URL = "https://discord.com/app"
-fromD = current_dir.parent / "0delete afater uplaod"
-UPLOAD_FOLDER = current_dir / "test"
-UPLOAD_FOLDER = fromD
+fromD = current_dir.parent.parent / "0delete afater uplaod"
 BATCH_SIZE = 10
 UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
 
-# # ============================
-# # WAIT FOR UPLOAD COMPLETE
-# # ============================
-# def wait_until_upload_icon_disappears(driver, timeout=900):
-#     """
-#     Waits until the upload SVG (attach button plus icon)
-#     disappears from the DOM or becomes invisible.
-#     """
 
-#     wait = WebDriverWait(driver, timeout)
-
-#     wait.until(
-#         EC.invisibility_of_element_located(
-#             (By.XPATH, "//svg[.//path[contains(@class,'attachButtonPlus')]]")
-#         )
-#     )
-
-#     # Required 1-second buffer after disappearance
-#     time.sleep(1)
-
-#     print("Upload indicator disappeared. Continuing...")
-
-# def wait_for_upload_to_finish(driver, timeout=900):
-#     """
-#     Wait until all Discord upload progress bars reach 100%.
-#     Checks each progress element every few seconds.
-#     """
-
-#     wait = WebDriverWait(driver, timeout)
-#     end_time = time.time() + timeout
-
-#     while time.time() < end_time:
-#         time.sleep(2)
-
-#         # Find all progress bars
-#         progress_elements = driver.find_elements(
-#             By.XPATH,
-#             "//div[contains(@class,'progress') or contains(@class,'upload')]"
-#         )
-
-#         if not progress_elements:
-#             # No progress bars = nothing uploading
-#             break
-
-#         all_complete = True
-#         for bar in progress_elements:
-#             style = bar.get_attribute("style")  # usually 'width: 45%;'
-#             if style and "width:" in style:
-#                 percent = int(style.split("width:")[1].split("%")[0].strip())
-#                 if percent < 100:
-#                     all_complete = False
-#                     break
-
-#         if all_complete:
-#             # All bars at 100%
-#             break
-
-#         print("Waiting for upload to reach 100%...")
-
-#     # Small buffer to ensure Discord finishes processing
-#     time.sleep(1)
-#     print("Upload complete!")
-
-# def wait_until_upload_icon_disappears(driver, timeout=900):
-#     """
-#     Waits until the upload SVG (attach button plus icon)
-#     disappears from the DOM or becomes invisible.
-#     """
-
-#     wait = WebDriverWait(driver, timeout)
-
-#     wait.until(
-#         EC.invisibility_of_element_located(
-#             (By.XPATH, "//svg[.//path[contains(@class,'attachButtonPlus')]]")
-#         )
-#     )
-
-#     # Required 1-second buffer after disappearance
-#     time.sleep(1)
-
-#     print("Upload indicator disappeared. Continuing...")
-
-
-# def wait_for_upload_completion():
-#     """
-#     Wait until upload progress elements disappear.
-#     """
-#     end_time = time.time() + UPLOAD_WAIT_TIMEOUT
-
-#     while time.time() < end_time:
-#         time.sleep(5)
-
-#         # Discord upload progress indicator
-#         uploading = driver.find_elements(
-#             By.XPATH,
-#             "//div[contains(@class,'upload') or contains(@class,'progress')]"
-#         )
-
-#         if not uploading:
-#             print("Upload finished.")
-#             return True
-
-#         print("Waiting for upload to finish...")
-
-#     raise TimeoutError("Upload did not finish within timeout.")
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# import time
-
-def wait_for_upload_100(driver, timeout=900):
+def wait_for_upload_100(driver, UPLOAD_FOLDER, timeout=900):
     """
     Waits until all Discord progress bars have aria-label="100 percent complete".
     """
@@ -159,9 +48,6 @@ def wait_for_upload_100(driver, timeout=900):
     current_dir = Path(__file__).resolve().parent
 
     # DISCORD_URL = "https://discord.com/app"
-    fromD = current_dir.parent / "0delete afater uplaod"
-    UPLOAD_FOLDER = current_dir / "test"
-    UPLOAD_FOLDER = fromD
     BATCH_SIZE = 10
     UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
 
@@ -200,8 +86,7 @@ def wait_for_upload_100(driver, timeout=900):
     print("All uploads reached 100%!")
 
 
-
-def uploader(files):
+def uploader(files, UPLOAD_FOLDER=current_dir.parent.parent / "0delete afater uplaod"):
 
     # ============================
     # CONFIGURATION
@@ -214,12 +99,8 @@ def uploader(files):
     LOGIN_URL = "https://discord.com/app"
 
     # Directory where the current .py file is located
-    current_dir = Path(__file__).resolve().parent
 
     # DISCORD_URL = "https://discord.com/app"
-    fromD = current_dir.parent / "0delete afater uplaod"
-    UPLOAD_FOLDER = current_dir / "test"
-    UPLOAD_FOLDER = fromD
     BATCH_SIZE = 10
     UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
     # ============================
@@ -284,6 +165,9 @@ def uploader(files):
     # ============================
     # UPLOAD LOOP
     # ============================
+    len1 = len(files)
+    files = [Path('D:/') / f.relative_to('D:/GITHUB') for f in files] # TODO make the input correct without this
+    print(len1 == len(files))
 
     for i in range(0, len(files), BATCH_SIZE):
         batch = files[i:i + BATCH_SIZE]
@@ -292,17 +176,28 @@ def uploader(files):
         print(f"\nUploading batch {i // BATCH_SIZE + 1} ({len(batch)} files)...")
 
         # Locate file input
-        file_input = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
-        )
+        try:
+            file_input = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+            )
 
-        # Upload multiple files
-        file_input.send_keys("\n".join(batch))
+            # Upload multiple files
+            file_input.send_keys("\n".join(batch))
+        except Exception as e:
+            print(e)
+            print("trying again after one full minute...")
+            time.sleep(60)
+            file_input = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
+            )
+            # Upload multiple files
+            file_input.send_keys("\n".join(batch))
+
 
         # Wait for upload to complete
         # wait_for_upload_completion()
         # wait for upload box go away
-        wait_for_upload_100(driver)
+        wait_for_upload_100(driver, UPLOAD_FOLDER)
 
         # Focus message input box
         message_box = wait.until(
@@ -334,14 +229,14 @@ if __name__ == "__main__":
     # GET FILES
     # ============================
 
-    files = sorted(glob.glob(os.path.join(UPLOAD_FOLDER, "*.part*")))
+    # files = sorted(glob.glob(os.path.join(UPLOAD_FOLDER, "*.part*")))
 
-    if not files:
-        print("No .part files found.")
-        driver.quit()
-        exit()
+    # if not files:
+    #     print("No .part files found.")
+    #     driver.quit()
+    #     exit()
 
-    print(f"Found {len(files)} files.")
+    # print(f"Found {len(files)} files.")
     uploader(files)
 
 

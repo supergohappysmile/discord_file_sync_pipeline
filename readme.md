@@ -5,7 +5,7 @@ uploads a list of files to discord channel you choose as long as they aren't alr
 create a .env
 
 ```Powershell
-python -m venv venv
+py -m venv venv
 .\venv\Scripts\activate
-python -m pip install -r requirements.txt
+py -m pip install -r requirements.txt
 ```

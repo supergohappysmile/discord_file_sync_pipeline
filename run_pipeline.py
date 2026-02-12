@@ -16,21 +16,22 @@ UPLOAD_FOLDER = fromD
 BATCH_SIZE = 10
 UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
 
-def get_files() -> List:
-    discord_filenames, missing_locally, extra_locally, matched = comparator(current_dir.parent / "0delete afater uplaod")
+def get_files(UPLOAD_FOLDER) -> List:
+    discord_filenames, missing_locally, extra_locally, matched = comparator(UPLOAD_FOLDER)
     log(discord_filenames, missing_locally, extra_locally, matched)
     files = list(extra_locally)
     files = [fromD / x for x in extra_locally]
     return extra_locally, files
 def main():
-    _, files = get_files()
+    UPLOAD_FOLDER = Path(Path().resolve().anchor) / "0delete afater uplaod"
+    _, files = get_files(UPLOAD_FOLDER)
     while (len(files) > 0 ):
         try:
-            uploader(files)
+            uploader(files, UPLOAD_FOLDER=UPLOAD_FOLDER)
 
         except Exception as e:
             print(str(e))
-        _, files = get_files()
+        _, files = get_files(UPLOAD_FOLDER)
             
 
 

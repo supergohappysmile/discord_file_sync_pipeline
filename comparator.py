@@ -9,6 +9,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+
 from pathlib import Path
 
 
@@ -32,6 +34,7 @@ current_dir = Path(__file__).resolve().parent
 
 DISCORD_URL = "https://discord.com/app"
 UPLOAD_FOLDER = current_dir / "test"
+ROOT_FOLDER = current_dir.anchor
 BATCH_SIZE = 10
 UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
 
@@ -93,42 +96,49 @@ def comparator(UPLOAD_FOLDER = current_dir / "test"):
     WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "div[class*=scroller]"))
     )
-
+    message_container = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//ol[starts-with(@class,'scrollerInner__') and @data-list-id='chat-messages']")
+        )
+    )
     # ==============================
     # SCROLL TO LOAD HISTORY
     # ==============================
-
-    message_container = driver.find_element(By.CSS_SELECTOR, "div[class*=scroller]")
-
+    filenames = set()
     last_height = 0
+
     while True:
-        driver.execute_script("arguments[0].scrollTop = 0", message_container)
-        time.sleep(2)
-        new_height = driver.execute_script(
-            "return arguments[0].scrollHeight", message_container
-        )
-        if new_height == last_height:
+        # Extract attachment links
+        attachments = driver.find_elements(By.CSS_SELECTOR, 'a[href*="cdn.discordapp.com"]')
+
+        for a in attachments:
+            href = a.get_attribute("href")
+            if href:
+                filename = href.split("/")[-1].split("?")[0]
+                filenames.add(filename)
+
+        # Scroll upward
+        # driver.execute_script("""
+        #     const container = arguments[0];
+        #     container.scrollTop = 0;
+        # """, message_container)
+        message_container.send_keys(Keys.PAGE_UP)
+        message_container.send_keys(Keys.PAGE_UP)
+        message_container.send_keys(Keys.PAGE_UP)
+
+        # time.sleep(2)
+
+        # Check if new content loaded
+        new_height = driver.execute_script("return arguments[0].scrollHeight", message_container)
+        if 'KingstonDataTravelerMax_02112026.log' in filenames:
             break
+
         last_height = new_height
 
-
-    # ==============================
-    # COLLECT DISCORD FILENAMES
-    # ==============================
-
-    links = driver.find_elements(By.CSS_SELECTOR, "a[href*='cdn.discordapp.com']")
-
-    discord_filenames = set()
-
-    for link in links:
-        href = link.get_attribute("href")
-        if href:
-            parsed = urlparse(href)
-            filename = parsed.path.split("/")[-1]
-            if filename:
-                discord_filenames.add(filename)
-
+    # breakpoint()
+    discord_filenames = filenames
     driver.quit()
+    # breakpoint()
 
 
     # ==============================
@@ -201,6 +211,6 @@ def log(discord_filenames, missing_locally, extra_locally, matched):
 
     print(f"\nReport written to: {output_file}")
 if __name__ == "__main__":
-    discord_filenames, missing_locally, extra_locally, matched = comparator(current_dir.parent / "0delete afater uplaod")
+    discord_filenames, missing_locally, extra_locally, matched = comparator(Path(current_dir.anchor).resolve() / "0delete afater uplaod")
     log(discord_filenames, missing_locally, extra_locally, matched)
 
