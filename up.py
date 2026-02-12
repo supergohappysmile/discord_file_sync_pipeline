@@ -73,7 +73,8 @@ def wait_for_upload_100(driver, UPLOAD_FOLDER, timeout=900):
         all_complete = True
         for el in progress_elements:
             aria_label = el.get_attribute("aria-label")
-            if aria_label != "100 percent complete":
+            percent = int(aria_label.split()[0])
+            if percent >= 75:
                 all_complete = False
                 break
 
@@ -86,7 +87,7 @@ def wait_for_upload_100(driver, UPLOAD_FOLDER, timeout=900):
     print("All uploads reached 100%!")
 
 
-def uploader(files, UPLOAD_FOLDER=current_dir.parent.parent / "0delete afater uplaod"):
+def uploader(driver, files, UPLOAD_FOLDER=current_dir.parent.parent / "0delete afater uplaod"):
 
     # ============================
     # CONFIGURATION
@@ -108,49 +109,46 @@ def uploader(files, UPLOAD_FOLDER=current_dir.parent.parent / "0delete afater up
     # ============================
 
 
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
 
-    driver = webdriver.Chrome(options=options)
     wait = WebDriverWait(driver, 999999)
 
 
-    driver.get(LOGIN_URL)
+    # driver.get(LOGIN_URL)
 
-    # ============================
-    # FILL LOGIN FORM
-    # ============================
+    # # ============================
+    # # # FILL LOGIN FORM
+    # # # ============================
 
-    email_input = wait.until(
-        EC.presence_of_element_located((By.NAME, "email"))
-    )
+    # # email_input = wait.until(
+    # #     EC.presence_of_element_located((By.NAME, "email"))
+    # # )
 
-    password_input = wait.until(
-        EC.presence_of_element_located((By.NAME, "password"))
-    )
+    # # password_input = wait.until(
+    # #     EC.presence_of_element_located((By.NAME, "password"))
+    # # )
 
-    email_input.clear()
-    email_input.send_keys(EMAIL)
+    # # email_input.clear()
+    # # email_input.send_keys(EMAIL)
 
-    password_input.clear()
-    password_input.send_keys(PASSWORD)
+    # # password_input.clear()
+    # # password_input.send_keys(PASSWORD)
 
-    # Click Login button
-    login_button = wait.until(
-        EC.element_to_be_clickable(
-            (By.XPATH, "//button[@type='submit']")
-        )
-    )
+    # # # Click Login button
+    # # login_button = wait.until(
+    # #     EC.element_to_be_clickable(
+    # #         (By.XPATH, "//button[@type='submit']")
+    # #     )
+    # # )
 
-    login_button.click()
+    # # login_button.click()
 
-    print("Login submitted.")
+    # print("Login submitted.")
 
-    # ============================
-    # HANDLE 2FA IF NEEDED
-    # ============================
+    # # ============================
+    # # HANDLE 2FA IF NEEDED
+    # # ============================
 
-    time.sleep(5)  # allow redirect
+    # time.sleep(5)  # allow redirect
 
     print("If you have 2FA, complete it now.")
     print("Navigate to the correct server/channel.")

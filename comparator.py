@@ -38,15 +38,10 @@ ROOT_FOLDER = current_dir.anchor
 BATCH_SIZE = 10
 UPLOAD_WAIT_TIMEOUT = 900  # 15 minutes max per batch
 
-def comparator(UPLOAD_FOLDER = current_dir / "test"):
+def comparator(driver, UPLOAD_FOLDER = current_dir / "test"):
     # ==============================
     # SELENIUM SETUP
     # ==============================
-
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-
-    driver = webdriver.Chrome(options=options)
 
     driver.get(DISCORD_URL)
     # ============================
@@ -137,7 +132,7 @@ def comparator(UPLOAD_FOLDER = current_dir / "test"):
 
     # breakpoint()
     discord_filenames = filenames
-    driver.quit()
+    # driver.quit()
     # breakpoint()
 
 
@@ -211,6 +206,12 @@ def log(discord_filenames, missing_locally, extra_locally, matched):
 
     print(f"\nReport written to: {output_file}")
 if __name__ == "__main__":
-    discord_filenames, missing_locally, extra_locally, matched = comparator(Path(current_dir.anchor).resolve() / "0delete afater uplaod")
+    
+    options = webdriver.ChromeOptions()
+    options.add_argument("--start-maximized")
+
+    driver = webdriver.Chrome(options=options)
+    
+    discord_filenames, missing_locally, extra_locally, matched = comparator(driver, Path(current_dir.anchor).resolve() / "0delete afater uplaod")
     log(discord_filenames, missing_locally, extra_locally, matched)
 
