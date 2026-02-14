@@ -74,7 +74,7 @@ def wait_for_upload_100(driver, UPLOAD_FOLDER, timeout=900):
         for el in progress_elements:
             aria_label = el.get_attribute("aria-label")
             percent = int(aria_label.split()[0])
-            if percent >= 75:
+            if percent <= 95:
                 all_complete = False
                 break
 
@@ -164,13 +164,13 @@ def uploader(driver, files, UPLOAD_FOLDER=current_dir.parent.parent / "0delete a
     # UPLOAD LOOP
     # ============================
     len1 = len(files)
-    files = [Path('D:/') / f.relative_to('D:/GITHUB') for f in files] # TODO make the input correct without this
+    # files = [Path('D:/') / f.relative_to('D:/GITHUB') for f in files] # TODO make the input correct without this
+    # files = [Path('D:/0crip') / f.relative_to('D:/0delete afater uplaod') for f in files]
     print(len1 == len(files))
 
     for i in range(0, len(files), BATCH_SIZE):
         batch = files[i:i + BATCH_SIZE]
         batch = list(map(str, batch))
-        #breakpoint()
         print(f"\nUploading batch {i // BATCH_SIZE + 1} ({len(batch)} files)...")
 
         # Locate file input

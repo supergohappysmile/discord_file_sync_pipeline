@@ -99,41 +99,56 @@ def comparator(driver, UPLOAD_FOLDER = current_dir / "test"):
     # ==============================
     # SCROLL TO LOAD HISTORY
     # ==============================
+    findLogScreen = ""
     filenames = set()
     last_height = 0
+    try:
+        while True:
+            # Extract attachment links
+            attachments = driver.find_elements(By.CSS_SELECTOR, 'a[href*="cdn.discordapp.com"]')
 
-    while True:
-        # Extract attachment links
-        attachments = driver.find_elements(By.CSS_SELECTOR, 'a[href*="cdn.discordapp.com"]')
+            for a in attachments:
+                try:
+                    href = a.get_attribute("href")
+                except Exception as e:
+                    print(e)
+                    attachments = driver.find_elements(By.CSS_SELECTOR, 'a[href*="cdn.discordapp.com"]')
+                    continue
+                if href:
+                    filename = href.split("/")[-1].split("?")[0]
+                    filenames.add(filename)
+                    findLogScreen = filename.split(".")[0] + ".log"
 
-        for a in attachments:
-            href = a.get_attribute("href")
-            if href:
-                filename = href.split("/")[-1].split("?")[0]
-                filenames.add(filename)
+            # Scroll upward
+            # driver.execute_script("""
+            #     const container = arguments[0];
+            #     container.scrollTop = 0;
+            # """, message_container)
+            try:
+                message_container.send_keys(Keys.PAGE_UP)
+                message_container.send_keys(Keys.PAGE_UP)
+                message_container.send_keys(Keys.PAGE_UP)
+            except Exception as e:
+                print(e)
+                attachments = driver.find_elements(By.CSS_SELECTOR, 'a[href*="cdn.discordapp.com"]')
 
-        # Scroll upward
-        # driver.execute_script("""
-        #     const container = arguments[0];
-        #     container.scrollTop = 0;
-        # """, message_container)
-        message_container.send_keys(Keys.PAGE_UP)
-        message_container.send_keys(Keys.PAGE_UP)
-        message_container.send_keys(Keys.PAGE_UP)
+                message_container = WebDriverWait(driver, 30).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, "//ol[starts-with(@class,'scrollerInner__') and @data-list-id='chat-messages']")
+                    )
+                )
+            # Check if new content loaded
+            new_height = driver.execute_script("return arguments[0].scrollHeight", message_container)
+            if findLogScreen in filenames:
+                break
 
-        # time.sleep(2)
+            last_height = new_height
+    except Exception as e:
+        print('kia it broke here')
+        breakpoint()
 
-        # Check if new content loaded
-        new_height = driver.execute_script("return arguments[0].scrollHeight", message_container)
-        if 'KingstonDataTravelerMax_02112026.log' in filenames:
-            break
-
-        last_height = new_height
-
-    # breakpoint()
     discord_filenames = filenames
     # driver.quit()
-    # breakpoint()
 
 
     # ==============================
